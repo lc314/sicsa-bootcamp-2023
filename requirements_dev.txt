@@ -1,0 +1,8 @@
+# Python packages to aid application development
+bandit
+checkov
+mypy
+pylint
+
+# Codebase-specific dev packages
+types-requests

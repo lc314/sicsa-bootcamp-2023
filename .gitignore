@@ -1,0 +1,21 @@
+# Text editor / IDE files
+/.project
+/*.sublime-project
+*.sublime-workspace
+.vscode
+*.code-workspace
+.history/
+.jenkins
+
+# Python byte-compiled / optimized / DLL files
+__pycache__/
+
+# Python environments
+.env
+.venv
+env/
+venv/
+venv*/
+ENV/
+env.bak/
+venv.bak/

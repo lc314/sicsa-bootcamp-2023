@@ -1,0 +1,29 @@
+# Text editor / IDE files
+**/.vscode/*
+**/*.code-workspace
+**/.history/
+
+# GIT
+**/.git
+
+# Jupyter Notebook
+**/.ipynb_checkpoints
+**/.ipynb_aml_checkpoints
+
+# Python byte-compiled / optimized / DLL files
+**/__pycache__
+
+# Python environments
+**/.env
+**/.venv
+**/env
+**/venv
+**/ENV
+**/env.bak
+**/venv.bak
+
+# Data files
+**/*.csv
+**/*.json
+**/*.xls
+**/*.xlsx

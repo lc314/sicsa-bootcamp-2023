@@ -1,0 +1,56 @@
+FROM jenkins/jenkins:lts
+
+USER root
+
+# Update apt cache and upgrade packages
+RUN apt-get update && apt-get -y upgrade
+
+# Install Python
+RUN apt-get install -y python3 python3-pip --no-install-recommends
+
+# Install misc system packages
+RUN apt-get install -y lsb-release sudo --no-install-recommends
+
+# Install Docker
+RUN curl -fsSLo /usr/share/keyrings/docker-archive-keyring.asc https://download.docker.com/linux/debian/gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) \
+  signed-by=/usr/share/keyrings/docker-archive-keyring.asc] \
+  https://download.docker.com/linux/debian \
+  $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+RUN apt-get update && apt-get install -y docker-ce-cli --no-install-recommends
+
+# Allow the jenkins user to run docker as sudo
+# NOTE: this is to prevent permissions issues when accessing a mounted docker socket
+RUN echo "jenkins ALL=(ALL) NOPASSWD: /usr/bin/docker" >> /etc/sudoers
+
+# Install Syft
+RUN curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+
+# Allow the jenkins user to run syft as sudo
+# NOTE: this is to allow syft to call docker
+RUN echo "jenkins ALL=(ALL) NOPASSWD: /usr/local/bin/syft" >> /etc/sudoers
+
+# Install Grype and update its vulnerability database
+RUN curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+RUN grype db update
+
+# Allow the jenkins user to run grype as sudo
+# NOTE: this is to allow grype to call docker
+RUN echo "jenkins ALL=(ALL) NOPASSWD: /usr/local/bin/grype" >> /etc/sudoers
+
+# Install Python packages
+ENV PIP_NO_CACHE_DIR=1
+RUN python3 -m pip install --upgrade pip
+RUN python3 -m pip install mypy types-requests bandit checkov
+
+# Install Jenkins plugins
+RUN jenkins-plugin-cli --plugins \
+    workflow-aggregator \
+    pipeline-stage-view \
+    git \
+    github \
+    pipeline-stage-view \
+    blueocean
+
+# Switch to non-root user
+USER jenkins
